@@ -6,6 +6,7 @@ import static com.br.ed2.tdd.modelo.util.DataUtil.quantidadeDeDiasAposVencimento
 import java.time.LocalDate;
 import java.util.Objects;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,15 +19,15 @@ public class Emprestimo {
 
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	private final LocalDate dataEmprestimo = LocalDate.now();
-	private final LocalDate dataPrevista = dataEmprestimo.plusDays(7);
+	private  LocalDate dataEmprestimo = LocalDate.now();
+	private  LocalDate dataPrevista = dataEmprestimo.plusDays(7);
 	private LocalDate dataDevolucao;
-	private final double valorFixo = 5.0;
+	private  double valorFixo = 5.0;
 	
-	@ManyToOne @JoinColumn(name = "livro_id")
+	@ManyToOne(cascade = CascadeType.ALL) @JoinColumn(name = "livro_id")
 	private Livro livro;
 	
-	@ManyToOne @JoinColumn(name = "usuario_id")
+	@ManyToOne(cascade = CascadeType.ALL) @JoinColumn(name = "usuario_id")
 	private Usuario usuario;
 	
 	public Emprestimo() {}
@@ -48,6 +49,8 @@ public class Emprestimo {
 	public LocalDate getDataEmprestimo() {return dataEmprestimo;}
 
 	public LocalDate getDataPrevista() {return dataPrevista;}
+	
+	public void setDataPrevista(LocalDate data) { this.dataPrevista = data;}
 
 	public double getValorFixo() {return valorFixo;}
 

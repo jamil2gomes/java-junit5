@@ -17,8 +17,9 @@ public class EmprestimoRepositoryImplement implements EmprestimoRepository {
 	
 	
 	@Override
-	public void salva(Emprestimo emprestimo) {
+	public String salva(Emprestimo emprestimo) {
 		manager.persist(emprestimo);
+		return "Emprestimo salvo com sucesso!";
 		
 	}
 
@@ -26,7 +27,7 @@ public class EmprestimoRepositoryImplement implements EmprestimoRepository {
 	public List<Livro> listaDeLivrosEmAtraso() {
 		
 		String jpql = "select e.livro from Emprestimo e "
-			     + "where e.dataDevolucao > e.dataPrevista ";
+			     + "where e.dataPrevista < now() ";
 		
 	return manager
 			.createQuery(jpql, Livro.class)

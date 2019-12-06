@@ -2,10 +2,12 @@ package com.br.ed2.tdd.modelo;
 
 import java.util.Objects;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
@@ -16,10 +18,10 @@ public class Pagamento {
 	private Integer id;
 	private Double valorPago;
 	
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.PERSIST) @JoinColumn(name = "usuario_id")
 	private Usuario usuario;
 	
-	@OneToOne
+	@OneToOne(cascade = CascadeType.PERSIST) @JoinColumn(name = "emprestimo_id")
 	private Emprestimo emprestimo;
 	
 	public Pagamento() {}

@@ -7,7 +7,7 @@ import com.br.ed2.tdd.modelo.Livro;
 
 public interface EmprestimoRepository {
 
-	void salva(Emprestimo emprestimo);
+	String salva(Emprestimo emprestimo);
 	
 	List<Livro> listaDeLivrosEmAtraso();
 
