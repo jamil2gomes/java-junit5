@@ -27,6 +27,7 @@ public class PagamentoRepositoryTeste {
 	private EntityManager manager;
 	private static EntityManagerFactory emf;
 	private PagamentoRepository pagRepo;
+	private EmprestimoRepository empRepo;
 
 	@BeforeAll
 	public static void inicio() {
@@ -38,6 +39,7 @@ public class PagamentoRepositoryTeste {
 		manager = emf.createEntityManager();
 		manager.getTransaction().begin();
 		pagRepo = new PagamentoRepositorioImplement(manager);
+		empRepo = new EmprestimoRepositoryImplement(manager);
 
 	}
 
@@ -57,16 +59,19 @@ public class PagamentoRepositoryTeste {
 		Usuario usuario1 = UsuarioBuilder.umUsuario().comNome("usuario1").comMatricula("123").constroi();
 		Livro livro = LivroBuilder.umLivro().comAutor("autor 1").comTitulo("titulo 1").constroi();
 
-		EmprestimoServico emp = new EmprestimoServico();
+		EmprestimoServico emp = new EmprestimoServico(empRepo);
 		emp.emprestar(usuario1, livro);
+	
+	
 
-		Double valorAPagar = emp.devolver(LocalDate.now(), livro);
+		Double valorAPagar = emp.devolver(usuario1, LocalDate.now(), livro);
 
-		Pagamento pag = new Pagamento(5.0, usuario1, emp.getEmprestimo());
-		manager.flush();
-		manager.clear();
+		Pagamento pag = new Pagamento(5.0, usuario1);
+		
 
 		String res = pagRepo.salva(pag);
+		manager.flush();
+		manager.clear();
 
 		assertAll(() -> assertEquals("Pagamento realizado com sucesso!", res),
 				() -> assertEquals(valorAPagar, pag.getValorPago()));

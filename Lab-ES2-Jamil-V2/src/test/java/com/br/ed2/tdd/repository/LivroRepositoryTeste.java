@@ -26,7 +26,6 @@ public class LivroRepositoryTeste {
 	private EntityManager manager;
 	private static EntityManagerFactory emf;
 	private LivroRepository livroRepo;
-	private UsuarioRepository usuarioRepo;
 	private EmprestimoRepository empRepo;
 
 	@BeforeAll
@@ -39,7 +38,6 @@ public class LivroRepositoryTeste {
 		manager = emf.createEntityManager();
 		manager.getTransaction().begin();
 		livroRepo = new LivroRepositoryImplement(manager);
-		usuarioRepo = new UsuarioRepositoryImplement(manager);
 		empRepo = new EmprestimoRepositoryImplement(manager);
 	}
 
@@ -86,20 +84,16 @@ public class LivroRepositoryTeste {
 	public void deveBuscarHistoricoDeEmprestimoDoLivro() {
 
 		Livro livro1 = LivroBuilder.umLivro().comTitulo("Livro 2").constroi();
-		livroRepo.salva(livro1);
 
 		Usuario usu1 = UsuarioBuilder.umUsuario().comNome("User 1").constroi();
-		usuarioRepo.salvar(usu1);
 
-		EmprestimoServico emp = new EmprestimoServico();
+		Usuario usu2 = UsuarioBuilder.umUsuario().comNome("User 1").constroi();
+
+		EmprestimoServico emp = new EmprestimoServico(empRepo);
 		emp.emprestar(usu1, livro1);
 
-		empRepo.salva(emp.getEmprestimo());
-
-		EmprestimoServico emp2 = new EmprestimoServico();
-		emp2.emprestar(usu1, livro1);
-
-		empRepo.salva(emp2.getEmprestimo());
+		EmprestimoServico emp2 = new EmprestimoServico(empRepo);
+		emp2.emprestar(usu2, livro1);
 		manager.flush();
 		manager.clear();
 
@@ -112,10 +106,13 @@ public class LivroRepositoryTeste {
 	@Test
 	public void deveRetornarLivrosEmprestados() {
 
-		Livro livro1 = LivroBuilder.umLivro().comTitulo("Livro 2").isEmprestado(true).constroi();
-		Livro livro2 = LivroBuilder.umLivro().comTitulo("Livro 3").isEmprestado(true).constroi();
-		livroRepo.salva(livro1);
-		livroRepo.salva(livro2);
+		Livro livro1 = LivroBuilder.umLivro().comTitulo("Livro 2").constroi();
+		Livro livro2 = LivroBuilder.umLivro().comTitulo("Livro 3").constroi();
+
+		Usuario usu1 = UsuarioBuilder.umUsuario().comNome("User 1").constroi();
+
+		EmprestimoServico emp = new EmprestimoServico(empRepo);
+		emp.emprestar(usu1, livro1, livro2);
 		manager.flush();
 		manager.clear();
 

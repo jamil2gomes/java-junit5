@@ -18,10 +18,11 @@ import javax.persistence.ManyToOne;
 public class Emprestimo {
 
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+	private  Integer id;
 	private  LocalDate dataEmprestimo = LocalDate.now();
 	private  LocalDate dataPrevista = dataEmprestimo.plusDays(7);
-	private LocalDate dataDevolucao;
+	private  LocalDate dataDevolucao;
+	private  boolean isFinalizado = false;
 	private  double valorFixo = 5.0;
 	
 	@ManyToOne(cascade = CascadeType.ALL) @JoinColumn(name = "livro_id")
@@ -53,6 +54,10 @@ public class Emprestimo {
 	public void setDataPrevista(LocalDate data) { this.dataPrevista = data;}
 
 	public double getValorFixo() {return valorFixo;}
+	
+	public void setFinalizado(boolean valor) { this.isFinalizado = valor;}
+	
+	public boolean getIsFinalizado() {return isFinalizado;}
 
 	public double valorTotalAPagar() {
 

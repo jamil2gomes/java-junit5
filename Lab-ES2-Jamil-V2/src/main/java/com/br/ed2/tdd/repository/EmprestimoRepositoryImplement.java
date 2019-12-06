@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 
 import com.br.ed2.tdd.modelo.Emprestimo;
 import com.br.ed2.tdd.modelo.Livro;
+import com.br.ed2.tdd.modelo.Usuario;
 
 public class EmprestimoRepositoryImplement implements EmprestimoRepository {
 
@@ -34,5 +35,37 @@ public class EmprestimoRepositoryImplement implements EmprestimoRepository {
 			.getResultList();
 		
 	}
+	
+	public List<Emprestimo> consultarEmprestimoPor(Usuario usuario){
+		String jpql = "from Emprestimo e "
+				+ "where e.usuario.id = :pUsuario and"
+				+ " e.isFinalizado = false";
+		
+		return manager
+				.createQuery(jpql, Emprestimo.class)
+				.setParameter("pUsuario", usuario.getId())
+				.getResultList();
+	}
+	
+	public Emprestimo buscaEmprestimoPor(String nomeUser, String nomeLivro){
+		String jpql = "from Emprestimo e "
+				+ "where e.usuario.nome = :pUsuario and"
+				+ " e.livro.titulo = :pLivro";
+		
+		return manager
+				.createQuery(jpql, Emprestimo.class)
+				.setParameter("pUsuario", nomeUser)
+				.setParameter("pLivro", nomeLivro)
+				.getSingleResult();
+	}
+
+
+	@Override
+	public Emprestimo atualiza(Emprestimo emprestimo) {
+		return manager.merge(emprestimo);
+		
+	}
+	
+	
 
 }

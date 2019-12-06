@@ -1,6 +1,7 @@
 package com.br.ed2.tdd.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.br.ed2.tdd.modelo.Emprestimo;
 import com.br.ed2.tdd.modelo.Livro;
 import com.br.ed2.tdd.modelo.Usuario;
 import com.br.ed2.tdd.servico.EmprestimoServico;
@@ -55,47 +57,41 @@ public class EmprestimoRepositoryTeste {
 		Usuario usuario = UsuarioBuilder.umUsuario().comNome("user1").comMatricula("123").constroi();
 
 		Livro livro = LivroBuilder.umLivro().comAutor("autor 1").comTitulo("titulo 1").constroi();
+		
+		Livro livro2 = LivroBuilder.umLivro().comAutor("autor 1").comTitulo("titulo 1").constroi();
 
-		EmprestimoServico emp = new EmprestimoServico();
-		emp.emprestar(usuario, livro);
+		EmprestimoServico emp = new EmprestimoServico(empRepo);
+		boolean res = emp.emprestar(usuario, livro, livro2);
 		manager.flush();
 		manager.clear();
 
-		String res = empRepo.salva(emp.getEmprestimo());
-
-		assertEquals("Emprestimo salvo com sucesso!", res);
+		assertTrue(res);
 
 	}
 
 	@Test
 	public void deveRetornarListaDeLivroEmAtraso() {
 
-		Livro livro1 = LivroBuilder.umLivro().comAutor("1").comTitulo("11").constroi();
-		Livro livro2 = LivroBuilder.umLivro().comAutor("2").comTitulo("22").constroi();
+		Livro livro1 = LivroBuilder.umLivro().comAutor("livro 1").comTitulo("livro 11").constroi();
 
 		Usuario usuario = UsuarioBuilder.umUsuario().comNome("user1").comMatricula("123").constroi();
 
-		Usuario usuario2 = UsuarioBuilder.umUsuario().comNome("user1").comMatricula("123").constroi();
-
-		EmprestimoServico emp = new EmprestimoServico();
+		EmprestimoServico emp = new EmprestimoServico(empRepo);
 		emp.emprestar(usuario, livro1);
-
-		emp.getEmprestimo().setDataPrevista(LocalDate.now().minusDays(4));
-
-		EmprestimoServico emp1 = new EmprestimoServico();
-		emp1.emprestar(usuario2, livro2);
-
-		emp1.getEmprestimo().setDataPrevista(LocalDate.now().minusDays(3));
-
-		empRepo.salva(emp.getEmprestimo());
-
-		empRepo.salva(emp1.getEmprestimo());
+		
+		
+		Emprestimo emprestimoBuscado = empRepo.buscaEmprestimoPor(usuario.getNome(), livro1.getTitulo());
+		emprestimoBuscado.setDataPrevista(LocalDate.now().minusDays(4));
+		
+		empRepo.atualiza(emprestimoBuscado);
+		
+		
+		List<Livro> livrosAtrasados = empRepo.listaDeLivrosEmAtraso();
+		
 		manager.flush();
 		manager.clear();
 
-		List<Livro> livrosAtrasados = empRepo.listaDeLivrosEmAtraso();
-
-		assertEquals(2, livrosAtrasados.size());
+		assertEquals(1, livrosAtrasados.size());
 
 	}
 

@@ -21,15 +21,13 @@ public class Pagamento {
 	@ManyToOne(cascade = CascadeType.PERSIST) @JoinColumn(name = "usuario_id")
 	private Usuario usuario;
 	
-	@OneToOne(cascade = CascadeType.PERSIST) @JoinColumn(name = "emprestimo_id")
-	private Emprestimo emprestimo;
 	
 	public Pagamento() {}
 	
-	public Pagamento(Double valorPago, Usuario usuario, Emprestimo emprestimo) {
+	public Pagamento(Double valorPago, Usuario usuario) {
 		this.valorPago = valorPago;
 		this.usuario = usuario;
-		this.emprestimo = emprestimo;
+	
 	}
 	
 	public Integer getId() {return id;}
@@ -37,8 +35,6 @@ public class Pagamento {
 	public Double getValorPago() {return valorPago;}
 
 	public Usuario getUsuario() {return usuario;}
-
-	public Emprestimo getEmprestimo() {return emprestimo;}
 
 	@Override
 	public int hashCode() {return Objects.hash(id);}
