@@ -28,7 +28,10 @@ public class Emprestimo {
 
 	public Livro getLivro() {return livro;}
 
-	public void setLivro(Livro livro) {this.livro = livro;}
+	public void setLivro(Livro livro) {
+		if(!livro.isReservado()) this.livro = livro;
+		else throw new RuntimeException("Não pode realizar emprestimo com livro reservado!");
+		}
 
 	public LocalDate getDataEmprestimo() {return dataEmprestimo;}
 

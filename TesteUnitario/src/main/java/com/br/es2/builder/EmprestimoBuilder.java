@@ -16,7 +16,6 @@ public class EmprestimoBuilder {
 		EmprestimoBuilder builder = new EmprestimoBuilder();
 		
 		builder.emprestimo = new Emprestimo();
-		
 		return builder;
 	}
 	
@@ -33,6 +32,10 @@ public class EmprestimoBuilder {
 	public EmprestimoBuilder comDataDevolucao(LocalDate dataDevolucao) {
 		this.emprestimo.setDataDevolucao(dataDevolucao);
 		return this;
+	}
+	
+	public Emprestimo constroi() {
+		return this.emprestimo;
 	}
 
 }
