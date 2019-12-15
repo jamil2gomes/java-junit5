@@ -42,6 +42,11 @@ public class Usuario {
 		Usuario other = (Usuario) obj;
 		return id == other.id;
 	}
+
+	@Override
+	public String toString() {
+		return "Usuario [nome=" + nome + "]";
+	}
 	
 	
 

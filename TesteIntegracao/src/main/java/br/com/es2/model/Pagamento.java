@@ -55,4 +55,11 @@ public class Pagamento {
 		return Objects.equals(id, other.id);
 	}
 
+	@Override
+	public String toString() {
+		return "Pagamento [id=" + id + ", valorPago=" + valorPago + ", usuario=" + usuario + ", emprestimo="
+				+ emprestimo + "]";
+	}
+	
+	
 }

@@ -96,6 +96,13 @@ public class Emprestimo {
 		Emprestimo other = (Emprestimo) obj;
 		return id == other.id;
 	}
+
+	@Override
+	public String toString() {
+		return "Emprestimo [id=" + id + "]";
+	}
+	
+	
 	
 	
 }
