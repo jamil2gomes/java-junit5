@@ -10,11 +10,14 @@ import com.br.es2.builder.EmprestimoBuilder;
 import br.com.es2.model.Emprestimo;
 import br.com.es2.model.Livro;
 import br.com.es2.model.Usuario;
+import br.com.es2.repository.EmprestimoRepository;
 
 public class EmprestimoService {
 
+	
 	private List<Emprestimo> emprestimos = new ArrayList<>();
 	private Emprestimo emprestimo;
+	private EmprestimoRepository repositorio;
 	
 
 
@@ -53,13 +56,18 @@ public class EmprestimoService {
 		return total;
 	}
 	
-	
+
+	public void setRepositorio(EmprestimoRepository repo) {
+		this.repositorio = repo;
+	}
 	
 	
 	public double realizaDevolucao(Emprestimo emprestimo, LocalDate dataDevolucao) {
 		emprestimo.setDataDevolucao(dataDevolucao);
 		emprestimo.setFinalizado(true);
 		emprestimo.getLivro().setEmprestado(false);
+		
+		repositorio.atualiza(emprestimo);
 		
 		return emprestimo.valorTotalAPagar();
 	}
