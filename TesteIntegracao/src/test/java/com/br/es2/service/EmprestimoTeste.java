@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import com.br.es2.builder.LivroBuilder;
 import com.br.es2.builder.UsuarioBuilder;
@@ -17,11 +18,14 @@ import com.br.es2.builder.UsuarioBuilder;
 import br.com.es2.model.Emprestimo;
 import br.com.es2.model.Livro;
 import br.com.es2.model.Usuario;
+import br.com.es2.repository.EmprestimoRepository;
+import br.com.es2.repository.EmprestimoRepositoryImplementacao;
 import br.com.es2.service.EmprestimoService;
 
 public class EmprestimoTeste {
 
 	private EmprestimoService servico;
+	private EmprestimoRepository repositorio;
 	private Usuario joao;
 	private Livro livro1, livro2, livro3;
 
@@ -32,7 +36,10 @@ public class EmprestimoTeste {
 		livro1 = LivroBuilder.umLivro().comAutor("Autor 1").comTitulo("Livro 1").ehReservado(false).constroi();
 		livro2 = LivroBuilder.umLivro().comAutor("Autor 2").comTitulo("Livro 2").ehReservado(false).constroi();
 		livro3 = LivroBuilder.umLivro().comAutor("Autor 3").comTitulo("Livro 3").ehReservado(false).constroi();
+		repositorio = Mockito.mock(EmprestimoRepositoryImplementacao.class);
 		servico = new EmprestimoService();
+		servico.setRepositorio(repositorio);
+
 	}
 
 	@Test
@@ -50,8 +57,7 @@ public class EmprestimoTeste {
 		livro1.setReservado(true);
 
 		RuntimeException exception = assertThrows(RuntimeException.class,
-				() -> servico.realizarEmprestimo(joao, livro1), 
-				"Deveria ter lançado um IllegalArgumentException");
+				() -> servico.realizarEmprestimo(joao, livro1), "Deveria ter lançado um IllegalArgumentException");
 
 		assertTrue(exception.getMessage().contains("Não pode realizar emprestimo com livro reservado!"));
 
@@ -115,15 +121,15 @@ public class EmprestimoTeste {
 
 		double total = 0.0;
 
-		for (Emprestimo emprestimo : emprestimosRealizados) {
-			total += servico.realizaDevolucao(emprestimo, LocalDate.now());
-		}
+		total += servico.realizaDevolucao(emprestimosRealizados.get(0), LocalDate.now());
 
 		assertEquals(5.0, total, 0.00001);
 		assertFalse(livro1.isEmprestado());
 
+		Mockito.verify(repositorio, Mockito.times(1)).atualiza(emprestimosRealizados.get(0));
+
 	}
-	
+
 	@Test
 	public void devolucaoDeEmprestimoNaDaDataPrevista() {
 
@@ -131,15 +137,15 @@ public class EmprestimoTeste {
 
 		double total = 0.0;
 
-		for (Emprestimo emprestimo : emprestimosRealizados) {
-			total += servico.realizaDevolucao(emprestimo, emprestimo.getDataPrevista());
-		}
+		total += servico.realizaDevolucao(emprestimosRealizados.get(0), emprestimosRealizados.get(0).getDataPrevista());
 
 		assertEquals(5.0, total, 0.00001);
 		assertFalse(livro1.isEmprestado());
 
+		Mockito.verify(repositorio, Mockito.times(1)).atualiza(emprestimosRealizados.get(0));
+
 	}
-	
+
 	@Test
 	public void devolucaoDeEmprestimoUmDiaDaDataPrevista() {
 
@@ -147,16 +153,16 @@ public class EmprestimoTeste {
 
 		double total = 0.0;
 
-		for (Emprestimo emprestimo : emprestimosRealizados) {
-			total += servico.realizaDevolucao(emprestimo, emprestimo.getDataPrevista().plusDays(1));
-		}
+		total += servico.realizaDevolucao(emprestimosRealizados.get(0),
+				emprestimosRealizados.get(0).getDataPrevista().plusDays(1));
 
 		assertEquals(5.4, total, 0.00001);
 		assertFalse(livro1.isEmprestado());
 
+		Mockito.verify(repositorio, Mockito.times(1)).atualiza(emprestimosRealizados.get(0));
+
 	}
-	
-	
+
 	@Test
 	public void devolucaoDeEmprestimoComTrintaDiasAposDataPrevista() {
 
@@ -164,12 +170,13 @@ public class EmprestimoTeste {
 
 		double total = 0.0;
 
-		for (Emprestimo emprestimo : emprestimosRealizados) {
-			total += servico.realizaDevolucao(emprestimo, emprestimo.getDataPrevista().plusDays(30));
-		}
+		total += servico.realizaDevolucao(emprestimosRealizados.get(0),
+				emprestimosRealizados.get(0).getDataPrevista().plusDays(30));
 
 		assertEquals(8.0, total, 0.00001);
 		assertFalse(livro1.isEmprestado());
+
+		Mockito.verify(repositorio, Mockito.times(1)).atualiza(emprestimosRealizados.get(0));
 
 	}
 
