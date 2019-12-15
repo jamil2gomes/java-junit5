@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.mockito.Mockito;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -46,7 +48,8 @@ public class PagamentoRepositoryTeste {
 	public void antes() {
 		manager = emf.createEntityManager();
 		manager.getTransaction().begin();
-		emprestimoRepo = new EmprestimoRepositoryImplementacao(manager);
+		emprestimoRepo = Mockito.mock(EmprestimoRepositoryImplementacao.class);
+		
 		pagamentoRepo = new PagamentoRepositoryImplementacao(manager);
 		livro = LivroBuilder.umLivro().comAutor("Autor X").comTitulo("Titulo Y").constroi();
 		usuario = UsuarioBuilder.umUsuario().comMatricula("123").comNome("Jamil").constroi();
@@ -68,22 +71,25 @@ public class PagamentoRepositoryTeste {
 	public void deveSalvarPagamento() {
 		
 		EmprestimoService servico = new EmprestimoService();
+		servico.setRepositorio(emprestimoRepo);
 		
 		List<Emprestimo>emprestimosRealizado = servico.realizarEmprestimo(usuario, livro);
 		
-		for(Emprestimo emprestimo: emprestimosRealizado) {
-			emprestimoRepo.salva(emprestimo);
-		}
 		
-		Emprestimo emprestimoBuscado = emprestimoRepo.buscaEmprestimoPor(1L);
 		
-		double valorAPagar = servico.realizaDevolucao(emprestimoBuscado, LocalDate.now());
 		
-		Pagamento pagamento  = new Pagamento(valorAPagar, emprestimoBuscado.getUsuario(), emprestimoBuscado);
+		double valorAPagar = servico.realizaDevolucao(emprestimosRealizado.get(0), LocalDate.now());
+		
+		Pagamento pagamento  = new Pagamento(valorAPagar, 
+				emprestimosRealizado.get(0).getUsuario(),
+				emprestimosRealizado.get(0));
 		
 		pagamentoRepo.salva(pagamento);
 		
 		Pagamento pagamentoBuscado = pagamentoRepo.buscaPor(1L);
+		
+		
+		Mockito.verify(emprestimoRepo, Mockito.times(1)).atualiza(emprestimosRealizado.get(0));
 		
 		assertNotNull(pagamentoBuscado);
 		
