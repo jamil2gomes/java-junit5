@@ -18,4 +18,10 @@ public class UsuarioRepositoryImplementacao implements UsuarioRepository {
 		manager.persist(usuario);
 	}
 
+	@Override
+	public Usuario encontraPor(Long id) {
+		
+		return manager.find(Usuario.class, id);
+	}
+
 }
