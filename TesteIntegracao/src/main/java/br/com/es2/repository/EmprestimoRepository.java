@@ -9,6 +9,8 @@ public interface EmprestimoRepository {
 
 	void salva(Emprestimo emprestimo);
 	
+	void atualiza(Emprestimo emprestimo);
+	
 	List<Livro> livrosEmprestados();
 	
 	List<Livro>livrosEmAtraso();

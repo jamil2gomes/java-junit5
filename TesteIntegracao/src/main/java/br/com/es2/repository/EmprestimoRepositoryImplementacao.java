@@ -41,4 +41,10 @@ public class EmprestimoRepositoryImplementacao implements EmprestimoRepository {
 		return manager.find(Emprestimo.class, id);
 	}
 
+	@Override
+	public void atualiza(Emprestimo emprestimo) {
+		manager.merge(emprestimo);
+		
+	}
+
 }
