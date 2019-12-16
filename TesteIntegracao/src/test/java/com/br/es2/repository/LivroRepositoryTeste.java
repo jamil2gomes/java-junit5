@@ -25,19 +25,16 @@ import br.com.es2.repository.EmprestimoRepository;
 import br.com.es2.repository.EmprestimoRepositoryImplementacao;
 import br.com.es2.repository.LivroRepository;
 import br.com.es2.repository.LivroRepositoryImplementacao;
-import br.com.es2.repository.UsuarioRepository;
-import br.com.es2.repository.UsuarioRepositoryImplementacao;
 
 public class LivroRepositoryTeste {
 
 	private EntityManager manager;
 	private static EntityManagerFactory emf;
-	
+
 	private Livro livro;
 	private Usuario usuario;
 	private EmprestimoRepository emprestimoRepo;
 	private LivroRepository livroRepository;
-	private UsuarioRepository usuarioRepository;
 
 	@BeforeAll
 	public static void inicio() {
@@ -50,7 +47,6 @@ public class LivroRepositoryTeste {
 		manager.getTransaction().begin();
 		livroRepository = new LivroRepositoryImplementacao(manager);
 		emprestimoRepo = new EmprestimoRepositoryImplementacao(manager);
-		usuarioRepository = new UsuarioRepositoryImplementacao(manager);
 		livro = LivroBuilder.umLivro().comAutor("Autor X").comTitulo("Titulo Y").constroi();
 		usuario = UsuarioBuilder.umUsuario().comMatricula("123").comNome("Jamil").constroi();
 
@@ -75,7 +71,6 @@ public class LivroRepositoryTeste {
 		manager.clear();
 
 		Livro livro = livroRepository.buscaPor(3L);
-		
 
 		assertEquals("Titulo Y", livro.getTitulo());
 
@@ -91,13 +86,12 @@ public class LivroRepositoryTeste {
 
 		Livro livroBuscado = livroRepository.buscaPor(2L);
 		livroBuscado.setTitulo("Titulo Atualizado");
-		
-		
-		Livro livroAtualizado = livroRepository.atualiza(livroBuscado);	
-		
+
+		Livro livroAtualizado = livroRepository.atualiza(livroBuscado);
+
 		assertEquals("Titulo Atualizado", livroAtualizado.getTitulo());
 	}
-	
+
 	@Test
 	public void deveBuscarHistoricoDeLivro() {
 
