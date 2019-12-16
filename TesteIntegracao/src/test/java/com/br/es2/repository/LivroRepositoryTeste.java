@@ -100,20 +100,15 @@ public class LivroRepositoryTeste {
 	
 	@Test
 	public void deveBuscarHistoricoDeLivro() {
-		
-		usuarioRepository.salva(usuario);
-	    livroRepository.salva(livro);
-	
 
 		Emprestimo emprestimo = EmprestimoBuilder.umEmprestimo().comUsuario(usuario).comLivro(livro).constroi();
-				
+
 		emprestimoRepo.salva(emprestimo);
 		manager.flush();
 		manager.clear();
-		
-		
+
 		List<Emprestimo> emprestimos = livroRepository.historicoDeEmprestimosDo(livro);
-		
+
 		assertEquals(1, emprestimos.size());
 	}
 
