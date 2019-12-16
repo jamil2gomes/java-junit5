@@ -113,9 +113,19 @@ public class EmprestimoTeste {
 	@Test
 	public void tentativaDeUsuarioComTresEmprestimo() {
 
-		assertThrows(RuntimeException.class,
-					 () -> servico.realizarEmprestimo(joao, livro1, livro2, livro3),
+		
+		
+RuntimeException e = 
+				assertThrows(RuntimeException.class,
+					 () ->{ 
+						servico.realizarEmprestimo(joao, livro1);
+						servico.realizarEmprestimo(joao, livro2);
+						servico.realizarEmprestimo(joao, livro3);
+						servico.realizarEmprestimo(joao, livro3);
+						},
 					 "Deveria ter lançado um IllegalArgumentException");
+
+		assertEquals("Usuario não pode ter mais de 3 emprestimos em aberto", e.getMessage());
 
 	}
 
