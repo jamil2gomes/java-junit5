@@ -29,6 +29,8 @@ public class EmprestimoService {
 			emprestimo = EmprestimoBuilder.umEmprestimo().comUsuario(usuario).comLivro(livros[i]).constroi();
 
 			emprestimos.add(emprestimo);
+			
+			repositorio.salva(emprestimo);
 		}
 
 		return emprestimos;
