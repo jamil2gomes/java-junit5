@@ -121,7 +121,6 @@ RuntimeException e =
 						servico.realizarEmprestimo(joao, livro1);
 						servico.realizarEmprestimo(joao, livro2);
 						servico.realizarEmprestimo(joao, livro3);
-						servico.realizarEmprestimo(joao, livro3);
 						},
 					 "Deveria ter lançado um IllegalArgumentException");
 

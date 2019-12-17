@@ -38,7 +38,7 @@ public class EmprestimoService {
 	
 	private boolean validacoesPreEmprestimo(Usuario usuario, Livro...livros) {
 		
-		if (this.buscarEmprestimosDo(usuario) > 2)
+		if (this.buscarEmprestimosDo(usuario) == 2)
 			throw new RuntimeException("Usuario não pode ter mais de 3 emprestimos em aberto");
 
 		if (livros.length > 2)

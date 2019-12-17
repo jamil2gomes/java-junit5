@@ -1,5 +1,6 @@
 package br.com.es2.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -28,11 +29,13 @@ public class EmprestimoRepositoryImplementacao implements EmprestimoRepository {
 	}
 
 	@Override
-	public List<Livro> livrosEmAtraso() {
+	public List<Livro> emAtraso() {
 
-		String jpql = "select e.livro from Emprestimo e where e.dataPrevista < now() ";
+		String jpql = "select e.livro from Emprestimo e where e.dataDevolucao is null e.dataPrevista < :pHoje ";
 
-		return manager.createQuery(jpql, Livro.class).getResultList();
+		return manager.createQuery(jpql, Livro.class)
+				.setParameter("pHoje", LocalDate.now())
+				.getResultList();
 	}
 
 	@Override
@@ -45,6 +48,16 @@ public class EmprestimoRepositoryImplementacao implements EmprestimoRepository {
 	public void atualiza(Emprestimo emprestimo) {
 		manager.merge(emprestimo);
 		
+	}
+
+	@Override
+	public List<Emprestimo> emprestimosEmAtraso() {
+		
+	 String jpql = "from Emprestimo e where e.dataDevolucao is null e.dataPrevista < :pHoje ";
+
+		return manager.createQuery(jpql, Emprestimo.class)
+				.setParameter("pHoje", LocalDate.now().plusDays(10))
+				.getResultList();
 	}
 
 }

@@ -3,29 +3,32 @@ package com.br.es2.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.br.es2.builder.LivroBuilder;
+import com.br.es2.builder.EmprestimoBuilder;
 import com.br.es2.builder.UsuarioBuilder;
+import com.br.es2.builder.LivroBuilder;
+
 
 import br.com.es2.model.Emprestimo;
 import br.com.es2.model.Livro;
 import br.com.es2.model.Usuario;
 import br.com.es2.repository.EmprestimoRepository;
-import br.com.es2.repository.EmprestimoRepositoryImplementacao;
+import br.com.es2.service.EmailService;
 import br.com.es2.service.EmprestimoService;
 
 public class EmprestimoTeste {
 
 	private EmprestimoService servico;
 	private EmprestimoRepository repositorio;
+	private EmailService emailService;
 	private Usuario joao;
 	private Livro livro1, livro2, livro3;
 
@@ -36,9 +39,12 @@ public class EmprestimoTeste {
 		livro1 = LivroBuilder.umLivro().comAutor("Autor 1").comTitulo("Livro 1").ehReservado(false).constroi();
 		livro2 = LivroBuilder.umLivro().comAutor("Autor 2").comTitulo("Livro 2").ehReservado(false).constroi();
 		livro3 = LivroBuilder.umLivro().comAutor("Autor 3").comTitulo("Livro 3").ehReservado(false).constroi();
-		repositorio = Mockito.mock(EmprestimoRepositoryImplementacao.class);
+		
+		repositorio = Mockito.mock(EmprestimoRepository.class);
+		emailService = Mockito.mock(EmailService.class);
 		servico = new EmprestimoService();
 		servico.setRepositorio(repositorio);
+		servico.setEmailService(emailService);
 
 	}
 
@@ -46,6 +52,8 @@ public class EmprestimoTeste {
 	public void deveRealizarEmprestimoComLivroNaoReservado() {
 
 		List<Emprestimo> emprestimosRealizados = servico.realizarEmprestimo(joao, livro1);
+		
+		Mockito.verify(repositorio,  Mockito.times(1)).salva(emprestimosRealizados.get(0));
 
 		assertEquals(1, emprestimosRealizados.size());
 
@@ -54,12 +62,12 @@ public class EmprestimoTeste {
 	@Test
 	public void testarEmprestimoComLivroReservado() {
 
+		
 		livro1.setReservado(true);
 
-		RuntimeException exception = assertThrows(RuntimeException.class,
-				() -> servico.realizarEmprestimo(joao, livro1), "Deveria ter lançado um IllegalArgumentException");
-
-		assertTrue(exception.getMessage().contains("Não pode realizar emprestimo com livro reservado!"));
+		 assertThrows(RuntimeException.class,
+				 	  () -> servico.realizarEmprestimo(joao, livro1),
+				 	 "Deveria ter lançado um IllegalArgumentException");
 
 	}
 
@@ -69,10 +77,12 @@ public class EmprestimoTeste {
 
 		List<Emprestimo> emprestimosRealizados = servico.realizarEmprestimo(joao, livro1);
 
-		for (Emprestimo emprestimo : emprestimosRealizados)
-			dataPrevista = emprestimo.getDataPrevista();
+		Mockito.verify(repositorio, Mockito.times(1)).salva(emprestimosRealizados.get(0));
+
+		dataPrevista = emprestimosRealizados.get(0).getDataPrevista();
 
 		assertEquals(LocalDate.now().plusDays(7), dataPrevista);
+
 	}
 
 	@Test
@@ -88,7 +98,9 @@ public class EmprestimoTeste {
 	@Test
 	public void testarUsuarioComUmEmprestimo() {
 
-		servico.realizarEmprestimo(joao, livro1);
+		List<Emprestimo> emprestimosRealizados = servico.realizarEmprestimo(joao, livro1);
+		
+		Mockito.verify(repositorio,  Mockito.times(1)).salva(emprestimosRealizados.get(0));
 
 		int totalEmprestimo = servico.buscarEmprestimosDo(joao);
 		assertEquals(1, totalEmprestimo);
@@ -97,7 +109,10 @@ public class EmprestimoTeste {
 	@Test
 	public void testarUsuarioComDoisEmprestimo() {
 
-		servico.realizarEmprestimo(joao, livro1, livro2);
+		List<Emprestimo> emprestimosRealizados = servico.realizarEmprestimo(joao, livro1, livro2);
+		
+		for(int i = 0; i < emprestimosRealizados.size(); i++)
+			Mockito.verify(repositorio,  Mockito.times(2)).salva(emprestimosRealizados.get(i));
 
 		int totalEmprestimo = servico.buscarEmprestimosDo(joao);
 		assertEquals(2, totalEmprestimo);
@@ -106,11 +121,18 @@ public class EmprestimoTeste {
 	@Test
 	public void tentativaDeUsuarioComTresEmprestimo() {
 
-		RuntimeException exception = assertThrows(RuntimeException.class,
-				() -> servico.realizarEmprestimo(joao, livro1, livro2, livro3),
-				"Deveria ter lançado um IllegalArgumentException");
+		
+		
+RuntimeException e = 
+				assertThrows(RuntimeException.class,
+					 () ->{ 
+						servico.realizarEmprestimo(joao, livro1);
+						servico.realizarEmprestimo(joao, livro2);
+						servico.realizarEmprestimo(joao, livro3);
+						},
+					 "Deveria ter lançado um IllegalArgumentException");
 
-		assertTrue(exception.getMessage().contains("Não pode fazer emprestimo com mais de 3 livros!"));
+		assertEquals("Usuario não pode ter mais de 3 emprestimos em aberto", e.getMessage());
 
 	}
 
@@ -178,6 +200,30 @@ public class EmprestimoTeste {
 
 		Mockito.verify(repositorio, Mockito.times(1)).atualiza(emprestimosRealizados.get(0));
 
+	}
+	
+	@Test
+	public void deveEnviarEmailParaUsuariosAtrasados() {
+	
+		Usuario usuario1 = UsuarioBuilder.umUsuario().comNome("User1").constroi();
+		Usuario usuario2 = UsuarioBuilder.umUsuario().comNome("User2").constroi();
+		
+		
+		
+		List<Emprestimo> emprestimosEmAtraso = Arrays.asList(
+				EmprestimoBuilder.umEmprestimo().comUsuario(usuario1).comLivro(livro1).emAtraso().constroi(),
+				EmprestimoBuilder.umEmprestimo().comUsuario(usuario2).comLivro(livro1).emAtraso().constroi() );
+		
+		
+		Mockito.when(repositorio.emprestimosEmAtraso()).thenReturn(emprestimosEmAtraso);
+		
+		servico.notificaUsuariosEmAtraso();
+		
+		Mockito.verify(emailService, Mockito.times(2)).notifica(usuario1);
+		Mockito.verify(emailService, Mockito.times(2)).notifica(usuario2);
+		
+		Mockito.verifyNoMoreInteractions(emailService);
+		
 	}
 
 }

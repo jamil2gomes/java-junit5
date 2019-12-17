@@ -18,6 +18,7 @@ public class EmprestimoService {
 	private List<Emprestimo> emprestimos = new ArrayList<>();
 	private Emprestimo emprestimo;
 	private EmprestimoRepository repositorio;
+	private EmailService emailServico;
 	
 
 
@@ -29,6 +30,8 @@ public class EmprestimoService {
 			emprestimo = EmprestimoBuilder.umEmprestimo().comUsuario(usuario).comLivro(livros[i]).constroi();
 
 			emprestimos.add(emprestimo);
+			
+			repositorio.salva(emprestimo);
 		}
 
 		return emprestimos;
@@ -36,13 +39,28 @@ public class EmprestimoService {
 	
 	private boolean validacoesPreEmprestimo(Usuario usuario, Livro...livros) {
 		
-		if (this.buscarEmprestimosDo(usuario) > 2)
+		if(usuario == null)
+			throw new RuntimeException("Não pode fazer emprestimo sem usuário");
+		
+		if(livros.length == 0)
+			throw new RuntimeException("Não pode fazer emprestimo sem pelo menos um livro");
+			
+		if (this.buscarEmprestimosDo(usuario) == 2)
 			throw new RuntimeException("Usuario não pode ter mais de 3 emprestimos em aberto");
 
 		if (livros.length > 2)
 			throw new RuntimeException("Não pode fazer emprestimo com mais de 3 livros!");
 		
 		return true;
+	}
+	
+	public void notificaUsuariosEmAtraso() {
+		
+		List<Emprestimo> livrosEmAtraso = repositorio.emprestimosEmAtraso();
+		
+		livrosEmAtraso.forEach(locacao -> 
+								emailServico.notifica(locacao.getUsuario()
+		));
 	}
 
 	public int buscarEmprestimosDo(Usuario usuario) {
@@ -61,11 +79,16 @@ public class EmprestimoService {
 		this.repositorio = repo;
 	}
 	
+	public void setEmailService(EmailService emailService) {
+		this.emailServico = emailService;
+	}
+	
 	
 	public double realizaDevolucao(Emprestimo emprestimo, LocalDate dataDevolucao) {
 		emprestimo.setDataDevolucao(dataDevolucao);
 		emprestimo.setFinalizado(true);
 		emprestimo.getLivro().setEmprestado(false);
+		emprestimo.getLivro().setReservado(false);
 		
 		repositorio.atualiza(emprestimo);
 		

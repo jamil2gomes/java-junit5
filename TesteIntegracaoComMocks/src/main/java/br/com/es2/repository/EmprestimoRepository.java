@@ -13,7 +13,9 @@ public interface EmprestimoRepository {
 	
 	List<Livro> livrosEmprestados();
 	
-	List<Livro>livrosEmAtraso();
+	List<Livro>emAtraso();
+	
+	List<Emprestimo>emprestimosEmAtraso();
 	
 	Emprestimo buscaEmprestimoPor(Long id);
 	

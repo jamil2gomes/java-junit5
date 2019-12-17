@@ -45,6 +45,8 @@ public class Emprestimo {
 	public LocalDate getDataDevolucao() {return dataDevolucao;}
 
 	public void setDataDevolucao(LocalDate dataDevolucao) {this.dataDevolucao = dataDevolucao;}
+	
+	public void setDataEmprestimo(LocalDate dataEmprestimo) {this.dataEmprestimo = dataEmprestimo;}
 
 	public Livro getLivro() {return livro;}
 

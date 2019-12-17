@@ -1,8 +1,11 @@
 package com.br.es2.repository;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -15,6 +18,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.br.es2.builder.EmprestimoBuilder;
 import com.br.es2.builder.LivroBuilder;
 import com.br.es2.builder.UsuarioBuilder;
 
@@ -23,13 +27,12 @@ import br.com.es2.model.Livro;
 import br.com.es2.model.Usuario;
 import br.com.es2.repository.EmprestimoRepository;
 import br.com.es2.repository.EmprestimoRepositoryImplementacao;
-import br.com.es2.service.EmprestimoService;
 
 public class EmprestimoRepositoryTeste {
-	
+
 	private EntityManager manager;
 	private static EntityManagerFactory emf;
-	
+
 	private Livro livro, livro2;
 	private Usuario usuario;
 	private EmprestimoRepository emprestimoRepo;
@@ -59,60 +62,53 @@ public class EmprestimoRepositoryTeste {
 	public static void fim() {
 		emf.close();
 	}
-	
-	@Test
+
+	// @Test
 	public void deveSalvarEmprestimo() {
-		
-		EmprestimoService  servico = new EmprestimoService();
-		
-		List<Emprestimo>emprestimosRealizados = servico.realizarEmprestimo(usuario, livro);
-		
-		for(Emprestimo emprestimo: emprestimosRealizados)
-				emprestimoRepo.salva(emprestimo);
-		
-		
+
+		Emprestimo emprestimo = EmprestimoBuilder.umEmprestimo().comUsuario(usuario).comLivro(livro).constroi();
+
+		emprestimoRepo.salva(emprestimo);
+
 		Emprestimo emprestimoBuscado = emprestimoRepo.buscaEmprestimoPor(4L);
-		
-		assertEquals("Jamil", emprestimoBuscado.getUsuario().getNome());
-		assertEquals("Titulo Y", emprestimoBuscado.getLivro().getTitulo());
+
+		assertAll(() -> assertEquals("Jamil", emprestimoBuscado.getUsuario().getNome()),
+				() -> assertEquals("Titulo Y", emprestimoBuscado.getLivro().getTitulo()),
+				() -> assertEquals(4, emprestimoBuscado.getId()));
+
 	}
-	
+
 	@Test
 	public void deveBuscarLivrosEmprestados() {
-		
-		EmprestimoService  servico = new EmprestimoService();
-		
-		List<Emprestimo>emprestimosRealizados = servico.realizarEmprestimo(usuario, livro, livro2);
-		
-		for(Emprestimo emprestimo: emprestimosRealizados)
-				emprestimoRepo.salva(emprestimo);
-		
-		
+
+		List<Emprestimo> emprestimosRealizados = new ArrayList<>();
+
+		Emprestimo emprestimo1 = EmprestimoBuilder.umEmprestimo().comUsuario(usuario).comLivro(livro).constroi();
+		Emprestimo emprestimo2 = EmprestimoBuilder.umEmprestimo().comUsuario(usuario).comLivro(livro2).constroi();
+
+		emprestimosRealizados.addAll(Arrays.asList(emprestimo1, emprestimo2));
+
+		for (Emprestimo emprestimo : emprestimosRealizados)
+			emprestimoRepo.salva(emprestimo);
+
 		List<Livro> livrosEmprestados = emprestimoRepo.livrosEmprestados();
-		
+
 		assertEquals(2, livrosEmprestados.size());
-		
+
 	}
-	
+
 	@Test
 	public void deveBuscarLivrosAtrasados() {
-		
-		EmprestimoService  servico = new EmprestimoService();
-		
-		List<Emprestimo>emprestimosRealizados = servico.realizarEmprestimo(usuario, livro);
-		
-		for(Emprestimo emprestimo: emprestimosRealizados) {
-			emprestimo.setDataPrevista(LocalDate.now().minusDays(1));
-			emprestimoRepo.salva(emprestimo);
-		}
-			
-				
-		
-		
-		List<Livro> livrosEmprestados = emprestimoRepo.livrosEmAtraso();
-		
+
+		Emprestimo emprestimo1 = EmprestimoBuilder.umEmprestimo().comUsuario(usuario).comLivro(livro).constroi();
+
+		emprestimo1.setDataPrevista(LocalDate.now().minusDays(1));
+		emprestimoRepo.salva(emprestimo1);
+
+		List<Livro> livrosEmprestados = emprestimoRepo.emAtraso();
+
 		assertEquals(1, livrosEmprestados.size());
-		
+
 	}
 
 }

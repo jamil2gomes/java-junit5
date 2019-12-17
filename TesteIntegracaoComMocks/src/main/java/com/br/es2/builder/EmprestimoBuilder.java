@@ -29,9 +29,10 @@ public class EmprestimoBuilder {
 		this.emprestimo.setUsuario(usuario);
 		return this;
 	}
-	
-	public EmprestimoBuilder comDataDevolucao(LocalDate dataDevolucao) {
-		this.emprestimo.setDataDevolucao(dataDevolucao);
+		
+	public EmprestimoBuilder emAtraso() {
+		emprestimo.setDataEmprestimo(LocalDate.now().minusDays(5) );
+		emprestimo.setDataPrevista(LocalDate.now().minusDays(6) );
 		return this;
 	}
 	
