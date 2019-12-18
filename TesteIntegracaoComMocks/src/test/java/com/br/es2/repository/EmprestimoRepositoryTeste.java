@@ -110,5 +110,26 @@ public class EmprestimoRepositoryTeste {
 		assertEquals(1, livrosEmprestados.size());
 
 	}
+	
+	@Test
+	public void deveTrazerEmprestimoEmUmDadoPeriodo() {
+		
+		LocalDate dataInicio = LocalDate.now().minusDays(20);
+    	LocalDate dataFim = LocalDate.now();
+    	
+    	Emprestimo emprestimo1 = EmprestimoBuilder.umEmprestimo().comLivro(livro).comUsuario(usuario).constroi();
+    	Emprestimo emprestimo2 = EmprestimoBuilder.umEmprestimo().comLivro(livro2).comUsuario(usuario).comDataLocacao(dataInicio).constroi();
+    	
+    	emprestimoRepo.salva(emprestimo1);
+    	emprestimoRepo.salva(emprestimo2);
+    	
+    	manager.flush();
+    	manager.clear();
+    	
+    	List<Emprestimo> listaEmprestimoNoPeriodo = emprestimoRepo.estatisticaDeEmprestimoPorPeriodo(dataInicio, dataFim);
+    	
+    	assertEquals(2, listaEmprestimoNoPeriodo.size() );
+    	
+	}
 
 }
