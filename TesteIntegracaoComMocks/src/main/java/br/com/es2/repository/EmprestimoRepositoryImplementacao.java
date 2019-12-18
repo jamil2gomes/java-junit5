@@ -31,7 +31,7 @@ public class EmprestimoRepositoryImplementacao implements EmprestimoRepository {
 	@Override
 	public List<Livro> emAtraso() {
 
-		String jpql = "select e.livro from Emprestimo e where e.dataDevolucao is null e.dataPrevista < :pHoje ";
+		String jpql = "select e.livro from Emprestimo e where e.dataDevolucao is null and e.dataPrevista < :pHoje ";
 
 		return manager.createQuery(jpql, Livro.class)
 				.setParameter("pHoje", LocalDate.now())
@@ -58,6 +58,19 @@ public class EmprestimoRepositoryImplementacao implements EmprestimoRepository {
 		return manager.createQuery(jpql, Emprestimo.class)
 				.setParameter("pHoje", LocalDate.now().plusDays(10))
 				.getResultList();
+	}
+
+	@Override
+	public List<Emprestimo> estatisticaDeEmprestimoPorPeriodo(LocalDate dataInicio, LocalDate dataFim) {
+		
+		String jpql = "from Emprestimo e "
+			        + "where e.dataEmprestimo between :pDataInicio and :pDataFim";
+	
+	return manager
+			.createQuery(jpql, Emprestimo.class)
+			.setParameter("pDataInicio", dataInicio )
+			.setParameter("pDataFim", dataFim )
+			.getResultList();
 	}
 
 }
