@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 
 import br.com.es2.model.Emprestimo;
 import br.com.es2.model.Livro;
+import br.com.es2.model.Usuario;
 
 public class EmprestimoRepositoryImplementacao implements EmprestimoRepository {
 
@@ -53,7 +54,7 @@ public class EmprestimoRepositoryImplementacao implements EmprestimoRepository {
 	@Override
 	public List<Emprestimo> emprestimosEmAtraso() {
 		
-	 String jpql = "from Emprestimo e where e.dataDevolucao is null e.dataPrevista < :pHoje ";
+	 String jpql = "from Emprestimo e where e.dataDevolucao is null and e.dataPrevista < :pHoje ";
 
 		return manager.createQuery(jpql, Emprestimo.class)
 				.setParameter("pHoje", LocalDate.now().plusDays(10))
@@ -71,6 +72,18 @@ public class EmprestimoRepositoryImplementacao implements EmprestimoRepository {
 			.setParameter("pDataInicio", dataInicio )
 			.setParameter("pDataFim", dataFim )
 			.getResultList();
+	}
+
+	@Override
+	public List<Emprestimo> emprestimosEmAtraso(Usuario usuario) {
+		
+		 String jpql = "from Emprestimo e where e.dataDevolucao is null and e.dataPrevista < :pHoje"
+		 		+ "  and e.usuario = pUsuario";
+
+			return manager.createQuery(jpql, Emprestimo.class)
+					.setParameter("pHoje", LocalDate.now().plusDays(10))
+					.setParameter("pUsuario", usuario.getId())
+					.getResultList();
 	}
 
 }

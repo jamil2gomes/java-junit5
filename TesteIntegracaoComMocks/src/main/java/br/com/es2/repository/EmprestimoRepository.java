@@ -5,6 +5,7 @@ import java.util.List;
 
 import br.com.es2.model.Emprestimo;
 import br.com.es2.model.Livro;
+import br.com.es2.model.Usuario;
 
 public interface EmprestimoRepository {
 
@@ -19,6 +20,7 @@ public interface EmprestimoRepository {
 	List<Livro>emAtraso();
 	
 	List<Emprestimo>emprestimosEmAtraso();
+	List<Emprestimo>emprestimosEmAtraso(Usuario usuario);
 	
 	List<Emprestimo> estatisticaDeEmprestimoPorPeriodo(LocalDate dataInicio, LocalDate dataFim);
 	

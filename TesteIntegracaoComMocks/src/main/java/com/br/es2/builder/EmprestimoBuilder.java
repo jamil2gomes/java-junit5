@@ -36,6 +36,8 @@ public class EmprestimoBuilder {
 		return this;
 	}
 	
+	
+	
 	public EmprestimoBuilder comDataLocacao(LocalDate data) {
 		this.emprestimo.setDataDevolucao(data);
 		return this;

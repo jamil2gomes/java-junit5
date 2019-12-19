@@ -215,6 +215,7 @@ RuntimeException e =
 				EmprestimoBuilder.umEmprestimo().comUsuario(usuario2).comLivro(livro1).emAtraso().constroi() );
 		
 		
+	
 		Mockito.when(repositorio.emprestimosEmAtraso()).thenReturn(emprestimosEmAtraso);
 		
 		servico.notificaUsuariosEmAtraso();

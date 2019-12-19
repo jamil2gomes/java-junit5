@@ -22,8 +22,11 @@ import br.com.es2.model.Emprestimo;
 import br.com.es2.model.Livro;
 import br.com.es2.model.Pagamento;
 import br.com.es2.model.Usuario;
+import br.com.es2.repository.EmprestimoRepository;
+import br.com.es2.repository.EmprestimoRepositoryImplementacao;
 import br.com.es2.repository.PagamentoRepository;
 import br.com.es2.repository.PagamentoRepositoryImplementacao;
+import br.com.es2.service.EmprestimoService;
 
 public class PagamentoRepositoryTeste {
 	private EntityManager manager;
@@ -76,5 +79,5 @@ public class PagamentoRepositoryTeste {
 				);
 
 	}
-
+	
 }
